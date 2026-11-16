@@ -41,3 +41,6 @@ Write operations use a token with `flight:write`; read operations use `flight:re
 Each session records the effective wind phase **at takeoff**, rather than just ticket windT0; physics versions isolate incompatible histories. Real jumps reference their source simulation. The optimization engine remains in the Chrome extension for this MVP. Data ingestion does **not** itself train a model: the API supplies previously successful strategies as seeds for future simulations.
 
 Do not commit credentials or game session tickets. Back up PostgreSQL; run `php artisan migrate --force` during deployment. Production workers/queues can be added for telemetry compression and maintenance.
+
+## Chrome Extension integration
+See [docs/extension-sync.md](docs/extension-sync.md) for Flight Planner v0.2.0 configuration, data flow, opt-in synchronization and known limitations.
