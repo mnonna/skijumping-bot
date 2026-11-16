@@ -3,17 +3,17 @@
 New Laravel 13 / Filament 5 API to store simulated and actual ski jumps and reuse successful flight strategies.
 
 ## Environment
-Use APP_NAME, APP_ENV, APP_KEY, APP_DEBUG, APP_URL, DB_CONNECTION=pgsql, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD, SESSION_DRIVER=database, CACHE_STORE=database, QUEUE_CONNECTION=database. Never commit .env.
+Use APP_NAME, APP_ENV, APP_KEY, APP_DEBUG, APP_URL, DB_CONNECTION=mysql, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD, SESSION_DRIVER=database, CACHE_STORE=database, QUEUE_CONNECTION=database. Never commit .env.
 
 ## Requirements
-PHP 8.3+, Composer 2, PostgreSQL 15+ (SQLite supported for tests), required PHP extensions, and HTTPS for Chrome-extension API access.
+PHP 8.3+, Composer 2, MySQL 8.0+ with PDO MySQL extension (SQLite supported for tests), required PHP extensions, and HTTPS for Chrome-extension API access.
 
 ## Installation
 ```bash
 composer install
 cp docs/environment.template .env
 php artisan key:generate
-# Configure DB_* in .env and create the PostgreSQL database
+# Configure DB_* in .env and create an empty MySQL 8 database
 php artisan migrate
 php artisan make:filament-user
 php artisan serve
@@ -40,7 +40,10 @@ Write operations use a token with `flight:write`; read operations use `flight:re
 ## Operational notes
 Each session records the effective wind phase **at takeoff**, rather than just ticket windT0; physics versions isolate incompatible histories. Real jumps reference their source simulation. The optimization engine remains in the Chrome extension for this MVP. Data ingestion does **not** itself train a model: the API supplies previously successful strategies as seeds for future simulations.
 
-Do not commit credentials or game session tickets. Back up PostgreSQL; run `php artisan migrate --force` during deployment. Production workers/queues can be added for telemetry compression and maintenance.
+Do not commit credentials or game session tickets. Back up MySQL; run `php artisan migrate --force` during deployment. Production workers/queues can be added for telemetry compression and maintenance.
 
 ## Chrome Extension integration
 See [docs/extension-sync.md](docs/extension-sync.md) for Flight Planner v0.2.0 configuration, data flow, opt-in synchronization and known limitations.
+
+### MySQL deployment
+Create a dedicated MySQL user with permissions limited to the Flight Lab database, then configure `DB_CONNECTION=mysql`, `DB_PORT=3306`, and `DB_HOST/DB_DATABASE/DB_USERNAME/DB_PASSWORD` in `.env`. Laravel will create all tables with `php artisan migrate --force`. In development, `php artisan migrate:fresh` destroys existing data, so **never** run it against your production database. Automated feature tests use in-memory SQLite; validate migrations against your installed MySQL version on staging before production deployment.
