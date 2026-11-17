@@ -34,7 +34,12 @@ class FlightApiTest extends TestCase {
     ])->assertCreated()->assertJsonPath('delta',0);
     $this->getJson('/api/v1/stats')->assertOk()->assertJsonPath('simulations',1)->assertJsonPath('jumps',1);
     $this->getJson('/api/v1/strategies/best?hill=akureyri&gate=26&physics_version=physics-v1')
-       ->assertOk()->assertJsonCount(1,'data');
+       ->assertOk()->assertJsonCount(1,'data')
+       ->assertJsonPath('data.0.wind.mean',1.32)
+       ->assertJsonPath('data.0.wind.gust',0.33)
+       ->assertJsonPath('data.0.wind.seed',371404197)
+       ->assertJsonPath('data.0.wind.phase',248.38)
+       ->assertJsonPath('data.0.controls.toErr',-0.02);
  }
  public function test_mismatched_strategy_cannot_be_attached_to_session():void {
     $this->login();

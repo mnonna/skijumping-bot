@@ -97,7 +97,14 @@ class FlightController extends Controller {
             ->where('flight_sessions.gate',$v['gate'])->where('flight_sessions.physics_version',$v['physics_version'])
             ->where('simulations.telemark',true)->where('simulations.fall',false)
             ->orderByDesc('simulations.distance')->limit($v['limit']??20)
-            ->get(['simulations.id','simulations.strategy_id','simulations.distance','strategies.controls']);
+            ->get(['simulations.id','simulations.strategy_id','simulations.distance','strategies.controls','flight_sessions.wind'])
+            ->map(fn($row) => [
+                'id'=>$row->id,
+                'strategy_id'=>$row->strategy_id,
+                'distance'=>(float)$row->distance,
+                'controls'=>is_array($row->controls) ? $row->controls : json_decode($row->controls,true),
+                'wind'=>is_array($row->wind) ? $row->wind : json_decode($row->wind,true),
+            ]);
         return response()->json(['data'=>$rows]);
     }
     public function stats(Request $r) {
